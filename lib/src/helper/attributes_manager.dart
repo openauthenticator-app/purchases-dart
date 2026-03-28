@@ -29,11 +29,9 @@ class AttributeManager {
 
   Map<String, String> _getDeviceIdentifiers() {
     // Using temporary advertising ID
-    const noPermissionAdvertisingIdValue =
-        '00000000-0000-0000-0000-000000000000';
+    const noPermissionAdvertisingIdValue = '00000000-0000-0000-0000-000000000000';
     return {
-      ReservedSubscriberAttribute.GPS_AD_ID.value:
-          noPermissionAdvertisingIdValue,
+      ReservedSubscriberAttribute.GPS_AD_ID.value: noPermissionAdvertisingIdValue,
       ReservedSubscriberAttribute.IP.value: 'true',
       ReservedSubscriberAttribute.DEVICE_VERSION.value: 'true',
     };

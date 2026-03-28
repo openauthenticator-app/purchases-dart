@@ -1,13 +1,16 @@
-import 'package:dio/dio.dart';
-import '../../purchases_dart.dart';
-import '../helper/api_key_helper.dart';
-import '../helper/purchase_error_code.dart';
-import '../model/raw_product.dart';
-import '../model/subscribe_attribute.dart';
-import 'endpoint.dart';
-import 'rc_http_status_code.dart';
-import '../parser/customer_parser.dart';
-import '../parser/offering_parser.dart';
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+import 'package:http_client_interceptor/http_client_interceptor.dart';
+import 'package:purchases_dart/purchases_dart.dart';
+import 'package:purchases_dart/src/helper/api_key_helper.dart';
+import 'package:purchases_dart/src/helper/purchase_error_code.dart';
+import 'package:purchases_dart/src/model/raw_product.dart';
+import 'package:purchases_dart/src/model/subscribe_attribute.dart';
+import 'package:purchases_dart/src/networking/endpoint.dart';
+import 'package:purchases_dart/src/networking/rc_http_status_code.dart';
+import 'package:purchases_dart/src/parser/customer_parser.dart';
+import 'package:purchases_dart/src/parser/offering_parser.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 /// Backend for Purchases.
@@ -15,11 +18,10 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 /// This class handles all network requests to the RevenueCat API,
 /// including customer info retrieval, offerings, and web checkout URL generation.
 class PurchasesBackend {
-  late Dio _httpClient;
+  late http.Client _httpClient;
   OfferingParser? _offeringParser;
   CustomerParser? _customerParser;
 
-  final String _rcBaseUrl = 'https://api.revenuecat.com/v1';
   final String _rcBillingBaseUrl = 'https://api.revenuecat.com/rcbilling/v1';
   late final bool isSandbox;
 
@@ -30,18 +32,11 @@ class PurchasesBackend {
     required String apiKey,
   }) {
     isSandbox = isWebBillingSandboxApiKey(apiKey);
-    _httpClient = Dio(
-      BaseOptions(
-        baseUrl: _rcBaseUrl,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Platform': 'web-billing',
-          'Authorization': 'Bearer $apiKey',
-        },
-      ),
-    );
-    _httpClient.interceptors.add(
-      ErrorInterceptor(),
+    _httpClient = HttpClientProxy(
+      innerClient: http.Client(),
+      interceptors: [
+        ErrorInterceptor(),
+      ],
     );
     _offeringParser = OfferingParser();
     _customerParser = CustomerParser();
@@ -53,7 +48,7 @@ class PurchasesBackend {
   }) async {
     final response = await _httpClient.get(
       GetCustomerInfo(userId).path,
-      options: headers?.dioOptions,
+      headers: headers?.map,
     );
     return _customerParser?.createCustomer(RawCustomer.fromJson(response.data));
   }
@@ -73,8 +68,7 @@ class PurchasesBackend {
     return await _offeringParser?.createOfferings(rawOfferings, rawProducts);
   }
 
-  Future<({Uri? production, Uri? sandbox})?> getWebCheckoutUrl(
-      String userId, Package package) async {
+  Future<({Uri? production, Uri? sandbox})?> getWebCheckoutUrl(String userId, Package package) async {
     final rawOfferings = await getRawOfferings(userId);
     String offeringId = package.presentedOfferingContext.offeringIdentifier;
     for (var offering in rawOfferings.offerings) {
@@ -112,9 +106,9 @@ class PurchasesBackend {
   }) async {
     final response = await _httpClient.get(
       GetOfferings(userId).path,
-      options: headers?.dioOptions,
+      headers: headers?.map,
     );
-    return RawOfferings.fromJson(response.data);
+    return RawOfferings.fromJson(jsonDecode(response.body));
   }
 
   /// Set `currency` to `null` to use auto pick currency.
@@ -138,17 +132,16 @@ class PurchasesBackend {
         _rcBillingBaseUrl,
         userId,
         platformProductIdentifiers.toList(),
-      ).path,
-      queryParameters: {
-        if (currency != null) 'currency': currency,
-      },
-      options: headers?.dioOptions,
+      ).path.replace(
+        queryParameters: {
+          if (currency != null) 'currency': currency,
+        },
+      ),
+      headers: headers?.map,
     );
 
-    var productDetails = response.data["product_details"];
-    if (productDetails == null ||
-        productDetails is! List ||
-        productDetails.isEmpty) {
+    var productDetails = response.data['product_details'];
+    if (productDetails == null || productDetails is! List || productDetails.isEmpty) {
       return [];
     }
 
@@ -161,10 +154,13 @@ class PurchasesBackend {
     required String? oldAppUserId,
     required String newAppUserId,
   }) async {
-    Response response = await _httpClient.post(LogIn().path, data: {
-      'app_user_id': oldAppUserId,
-      'new_app_user_id': newAppUserId,
-    });
+    http.Response response = await _httpClient.post(
+      LogIn().path,
+      body: {
+        'app_user_id': oldAppUserId,
+        'new_app_user_id': newAppUserId,
+      },
+    );
     if (response.data == null) {
       throw const PurchasesDartError(
         code: PurchasesDartErrorCode.UnknownError,
@@ -199,8 +195,8 @@ class PurchasesBackend {
 
     await _httpClient.post(
       PostAttributes(userId).path,
-      options: headers?.dioOptions,
-      data: backendMap,
+      headers: headers?.map,
+      body: backendMap,
     );
   }
 }

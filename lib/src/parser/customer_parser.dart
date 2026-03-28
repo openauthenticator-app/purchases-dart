@@ -1,21 +1,17 @@
+import 'package:purchases_flutter/purchases_flutter.dart';
+
 import '../helper/date_helper.dart';
 import '../helper/enum_parser.dart';
 import '../helper/extensions.dart';
 import '../helper/logger.dart';
 import '../model/raw_customer.dart';
 
-import 'package:purchases_flutter/purchases_flutter.dart';
-
 /// Parses a [RawCustomer] into a [CustomerInfo] object.
 class CustomerParser {
   CustomerInfo? createCustomer(RawCustomer rawCustomer) {
     List<RawSubscriptionObject> subscriptions = rawCustomer.subscriptions ?? [];
-    List<RawSubscriptionObject> nonSubscriptionsLatestPurchases =
-        rawCustomer.nonSubscriptionsLatestPurchases ?? [];
-    List<RawSubscriptionObject> allSubscriptions = [
-      ...nonSubscriptionsLatestPurchases,
-      ...subscriptions
-    ];
+    List<RawSubscriptionObject> nonSubscriptionsLatestPurchases = rawCustomer.nonSubscriptionsLatestPurchases ?? [];
+    List<RawSubscriptionObject> allSubscriptions = [...nonSubscriptionsLatestPurchases, ...subscriptions];
 
     List<RawEntitlementObject> rawEntitlements = rawCustomer.entitlements ?? [];
 
@@ -28,8 +24,8 @@ class CustomerParser {
       subscriptions: allSubscriptions,
       requestDate: rawCustomer.requestDate,
     );
-    String firstSeen = rawCustomer.firstSeen?.toString() ?? "";
-    String originalAppUserId = rawCustomer.originalAppUserId ?? "";
+    String firstSeen = rawCustomer.firstSeen?.toString() ?? '';
+    String originalAppUserId = rawCustomer.originalAppUserId ?? '';
     List<StoreTransaction> nonSubscriptionTransactions = [];
 
     for (var subscriptionObject in allSubscriptions) {
@@ -37,14 +33,12 @@ class CustomerParser {
 
       DateTime? purchaseDate = subscriptionObject.purchaseDate;
       if (purchaseDate != null) {
-        allPurchaseDates[subscriptionObject.identifier] =
-            purchaseDate.toString();
+        allPurchaseDates[subscriptionObject.identifier] = purchaseDate.toString();
       }
 
       DateTime? expirationDate = subscriptionObject.expiresDate;
       if (expirationDate != null) {
-        allExpirationDates[subscriptionObject.identifier] =
-            expirationDate.toString();
+        allExpirationDates[subscriptionObject.identifier] = expirationDate.toString();
       }
 
       if (_isDateActive(
@@ -57,8 +51,7 @@ class CustomerParser {
     }
 
     for (var subscriptionObject in nonSubscriptionsLatestPurchases) {
-      StoreTransaction? transaction =
-          _createStoreTransactions(subscriptionObject);
+      StoreTransaction? transaction = _createStoreTransactions(subscriptionObject);
       if (transaction != null) {
         nonSubscriptionTransactions.add(transaction);
       }
@@ -76,8 +69,7 @@ class CustomerParser {
       rawCustomer.requestDate,
       latestExpirationDate: null,
       originalPurchaseDate: rawCustomer.originalPurchaseDate?.toString(),
-      originalApplicationVersion:
-          rawCustomer.originalApplicationVersion?.toString(),
+      originalApplicationVersion: rawCustomer.originalApplicationVersion?.toString(),
       managementURL: rawCustomer.managementUrl,
     );
   }
@@ -109,8 +101,7 @@ class CustomerParser {
     List<RawSubscriptionObject> subscriptions,
     String requestDate,
   ) {
-    RawSubscriptionObject? subscriptionObject = subscriptions.firstWhereOrNull(
-        (element) => element.identifier == entitlement.productIdentifier);
+    RawSubscriptionObject? subscriptionObject = subscriptions.firstWhereOrNull((element) => element.identifier == entitlement.productIdentifier);
     if (subscriptionObject == null) return null;
     return EntitlementInfo(
       entitlement.id,
@@ -125,9 +116,9 @@ class CustomerParser {
         subscriptionObject.unsubscribeDetectedAt,
         subscriptionObject.billingIssuesDetectedAt,
       ),
-      entitlement.purchaseDate?.toString() ?? "",
-      subscriptionObject.originalPurchaseDate?.toString() ?? "",
-      entitlement.productIdentifier ?? "",
+      entitlement.purchaseDate?.toString() ?? '',
+      subscriptionObject.originalPurchaseDate?.toString() ?? '',
+      entitlement.productIdentifier ?? '',
       subscriptionObject.isSandbox ?? false,
       store: getStore(subscriptionObject.store),
       periodType: getPeriodType(subscriptionObject.periodType),
@@ -166,15 +157,14 @@ class CustomerParser {
     return dateActive.isActive;
   }
 
-  StoreTransaction? _createStoreTransactions(
-      RawSubscriptionObject subscriptionObject) {
+  StoreTransaction? _createStoreTransactions(RawSubscriptionObject subscriptionObject) {
     String? transactionIdentifier = subscriptionObject.storeTransactionId;
     if (transactionIdentifier == null) return null;
 
     return StoreTransaction(
       transactionIdentifier,
       subscriptionObject.identifier,
-      subscriptionObject.purchaseDate?.toString() ?? "",
+      subscriptionObject.purchaseDate?.toString() ?? '',
     );
   }
 }

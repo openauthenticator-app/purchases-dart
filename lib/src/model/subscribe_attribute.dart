@@ -7,8 +7,8 @@ class SubscriberAttribute {
 
   Map<String, dynamic> toBackendMap() {
     return {
-      "value": value,
-      "updated_at_ms": setTime.millisecondsSinceEpoch,
+      'value': value,
+      'updated_at_ms': setTime.millisecondsSinceEpoch,
     };
   }
 }

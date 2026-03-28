@@ -11,17 +11,14 @@ class RawOfferings {
 
   factory RawOfferings.fromJson(Map<String, dynamic> json) {
     return RawOfferings(
-      currentOfferingId: json["current_offering_id"],
-      offerings: json["offerings"] == null
-          ? []
-          : List<RawOffering>.from(
-              json["offerings"]!.map((x) => RawOffering.fromJson(x))),
+      currentOfferingId: json['current_offering_id'],
+      offerings: json['offerings'] == null ? [] : List<RawOffering>.from(json['offerings']!.map((x) => RawOffering.fromJson(x))),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "current_offering_id": currentOfferingId,
-        "offerings": offerings.map((x) => x.toJson()).toList(),
+        'current_offering_id': currentOfferingId,
+        'offerings': offerings.map((x) => x.toJson()).toList(),
       };
 }
 
@@ -44,29 +41,20 @@ class RawOffering {
 
   factory RawOffering.fromJson(Map<String, dynamic> json) {
     return RawOffering(
-      description: json["description"],
-      identifier: json["identifier"],
-      metadata: json["metadata"] != null
-          ? (json["metadata"] as Map<String, dynamic>)
-              .map((key, value) => MapEntry(key, value as Object))
-          : {},
-      packages: json["packages"] == null
-          ? []
-          : List<RawPackage>.from(
-              json["packages"]!.map((x) => RawPackage.fromJson(x))),
-      webCheckoutUrl: json["web_checkout_url"],
-      webCheckoutUrls: json["web_checkout_urls"] != null
-          ? (json["web_checkout_urls"] as Map<String, dynamic>)
-              .map((key, value) => MapEntry(key, value as String))
-          : null,
+      description: json['description'],
+      identifier: json['identifier'],
+      metadata: json['metadata'] != null ? (json['metadata'] as Map<String, dynamic>).map((key, value) => MapEntry(key, value as Object)) : {},
+      packages: json['packages'] == null ? [] : List<RawPackage>.from(json['packages']!.map((x) => RawPackage.fromJson(x))),
+      webCheckoutUrl: json['web_checkout_url'],
+      webCheckoutUrls: json['web_checkout_urls'] != null ? (json['web_checkout_urls'] as Map<String, dynamic>).map((key, value) => MapEntry(key, value as String)) : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "description": description,
-        "identifier": identifier,
-        "metadata": metadata,
-        "packages": packages.map((x) => x.toJson()).toList(),
+        'description': description,
+        'identifier': identifier,
+        'metadata': metadata,
+        'packages': packages.map((x) => x.toJson()).toList(),
       };
 }
 
@@ -85,10 +73,10 @@ class RawPackage {
 
   factory RawPackage.fromJson(Map<String, dynamic> json) {
     return RawPackage(
-      identifier: json["identifier"],
-      platformProductIdentifier: json["platform_product_identifier"],
-      platformProductPlanIdentifier: json["platform_product_plan_identifier"],
-      webCheckoutUrl: json["web_checkout_url"],
+      identifier: json['identifier'],
+      platformProductIdentifier: json['platform_product_identifier'],
+      platformProductPlanIdentifier: json['platform_product_plan_identifier'],
+      webCheckoutUrl: json['web_checkout_url'],
     );
   }
 
@@ -106,8 +94,8 @@ class RawPackage {
   }
 
   Map<String, dynamic> toJson() => {
-        "identifier": identifier,
-        "platform_product_identifier": platformProductIdentifier,
-        "platform_product_plan_identifier": platformProductPlanIdentifier,
+        'identifier': identifier,
+        'platform_product_identifier': platformProductIdentifier,
+        'platform_product_plan_identifier': platformProductPlanIdentifier,
       };
 }

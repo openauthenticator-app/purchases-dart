@@ -30,37 +30,35 @@ class RawCustomer {
   final dynamic originalPurchaseDate;
 
   factory RawCustomer.fromJson(Map<String, dynamic> rawJson) {
-    Map<String, dynamic> json =
-        rawJson[CustomerInfoResponseJsonKeys.subscriber];
+    Map<String, dynamic> json = rawJson[CustomerInfoResponseJsonKeys.subscriber];
     return RawCustomer(
-      requestDate: rawJson["request_date"] ?? "",
-      entitlements: entitlementsFromJson(json["entitlements"]),
-      firstSeen: DateTime.tryParse(json["first_seen"] ?? ""),
-      lastSeen: DateTime.tryParse(json["last_seen"] ?? ""),
-      managementUrl: json["management_url"],
-      originalAppUserId: json["original_app_user_id"],
-      originalApplicationVersion: json["original_application_version"],
-      originalPurchaseDate: json["original_purchase_date"],
-      nonSubscriptions: nonSubscriptionsFromJson(json["non_subscriptions"]),
-      nonSubscriptionsLatestPurchases:
-          nonSubscriptionsFromJson(json["non_subscriptions"], true),
-      otherPurchases: subscriptionsFromJson(json["other_purchases"]),
-      subscriptions: subscriptionsFromJson(json["subscriptions"]),
+      requestDate: rawJson['request_date'] ?? '',
+      entitlements: entitlementsFromJson(json['entitlements']),
+      firstSeen: DateTime.tryParse(json['first_seen'] ?? ''),
+      lastSeen: DateTime.tryParse(json['last_seen'] ?? ''),
+      managementUrl: json['management_url'],
+      originalAppUserId: json['original_app_user_id'],
+      originalApplicationVersion: json['original_application_version'],
+      originalPurchaseDate: json['original_purchase_date'],
+      nonSubscriptions: nonSubscriptionsFromJson(json['non_subscriptions']),
+      nonSubscriptionsLatestPurchases: nonSubscriptionsFromJson(json['non_subscriptions'], true),
+      otherPurchases: subscriptionsFromJson(json['other_purchases']),
+      subscriptions: subscriptionsFromJson(json['subscriptions']),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "request_date": requestDate,
-        "entitlements": entitlements?.map((e) => e.toJson()),
-        "first_seen": firstSeen?.toIso8601String(),
-        "last_seen": lastSeen?.toIso8601String(),
-        "management_url": managementUrl,
-        "non_subscriptions": nonSubscriptions,
-        "original_app_user_id": originalAppUserId,
-        "original_application_version": originalApplicationVersion,
-        "original_purchase_date": originalPurchaseDate,
-        "other_purchases": otherPurchases,
-        "subscriptions": subscriptions?.map((e) => e.toJson()),
+        'request_date': requestDate,
+        'entitlements': entitlements?.map((e) => e.toJson()),
+        'first_seen': firstSeen?.toIso8601String(),
+        'last_seen': lastSeen?.toIso8601String(),
+        'management_url': managementUrl,
+        'non_subscriptions': nonSubscriptions,
+        'original_app_user_id': originalAppUserId,
+        'original_application_version': originalApplicationVersion,
+        'original_purchase_date': originalPurchaseDate,
+        'other_purchases': otherPurchases,
+        'subscriptions': subscriptions?.map((e) => e.toJson()),
       };
 }
 
@@ -86,8 +84,7 @@ List<RawSubscriptionObject> nonSubscriptionsFromJson(
 ]) {
   List<RawSubscriptionObject> result = [];
   json?.forEach((key, value) {
-    List<RawSubscriptionObject> values =
-        List<RawSubscriptionObject>.from(value.map(
+    List<RawSubscriptionObject> values = List<RawSubscriptionObject>.from(value.map(
       (e) => RawSubscriptionObject.fromJson(key, e),
     ));
     if (onlyLatestPurchases) {
@@ -116,19 +113,19 @@ class RawEntitlementObject {
   factory RawEntitlementObject.fromJson(String id, Map<String, dynamic> json) {
     return RawEntitlementObject(
       id: id,
-      expiresDate: DateTime.tryParse(json["expires_date"] ?? ""),
-      gracePeriodExpiresDate: json["grace_period_expires_date"],
-      productIdentifier: json["product_identifier"],
-      purchaseDate: DateTime.tryParse(json["purchase_date"] ?? ""),
+      expiresDate: DateTime.tryParse(json['expires_date'] ?? ''),
+      gracePeriodExpiresDate: json['grace_period_expires_date'],
+      productIdentifier: json['product_identifier'],
+      purchaseDate: DateTime.tryParse(json['purchase_date'] ?? ''),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "expires_date": expiresDate?.toIso8601String(),
-        "grace_period_expires_date": gracePeriodExpiresDate,
-        "product_identifier": productIdentifier,
-        "purchase_date": purchaseDate?.toIso8601String(),
+        'id': id,
+        'expires_date': expiresDate?.toIso8601String(),
+        'grace_period_expires_date': gracePeriodExpiresDate,
+        'product_identifier': productIdentifier,
+        'purchase_date': purchaseDate?.toIso8601String(),
       };
 }
 
@@ -165,40 +162,38 @@ class RawSubscriptionObject {
   final String? storeTransactionId;
   final String? unsubscribeDetectedAt;
 
-  factory RawSubscriptionObject.fromJson(
-      String key, Map<String, dynamic> json) {
+  factory RawSubscriptionObject.fromJson(String key, Map<String, dynamic> json) {
     return RawSubscriptionObject(
       identifier: key,
-      id: json["id"],
-      autoResumeDate: json["auto_resume_date"],
-      billingIssuesDetectedAt: json["billing_issues_detected_at"],
-      expiresDate: DateTime.tryParse(json["expires_date"] ?? ""),
-      gracePeriodExpiresDate: json["grace_period_expires_date"],
-      isSandbox: json["is_sandbox"],
-      originalPurchaseDate:
-          DateTime.tryParse(json["original_purchase_date"] ?? ""),
-      periodType: json["period_type"],
-      purchaseDate: DateTime.tryParse(json["purchase_date"] ?? ""),
-      refundedAt: json["refunded_at"],
-      store: json["store"],
-      storeTransactionId: json["store_transaction_id"],
-      unsubscribeDetectedAt: json["unsubscribe_detected_at"],
+      id: json['id'],
+      autoResumeDate: json['auto_resume_date'],
+      billingIssuesDetectedAt: json['billing_issues_detected_at'],
+      expiresDate: DateTime.tryParse(json['expires_date'] ?? ''),
+      gracePeriodExpiresDate: json['grace_period_expires_date'],
+      isSandbox: json['is_sandbox'],
+      originalPurchaseDate: DateTime.tryParse(json['original_purchase_date'] ?? ''),
+      periodType: json['period_type'],
+      purchaseDate: DateTime.tryParse(json['purchase_date'] ?? ''),
+      refundedAt: json['refunded_at'],
+      store: json['store'],
+      storeTransactionId: json['store_transaction_id'],
+      unsubscribeDetectedAt: json['unsubscribe_detected_at'],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "identifier": identifier,
-        "auto_resume_date": autoResumeDate,
-        "billing_issues_detected_at": billingIssuesDetectedAt,
-        "expires_date": expiresDate?.toIso8601String(),
-        "grace_period_expires_date": gracePeriodExpiresDate,
-        "is_sandbox": isSandbox,
-        "original_purchase_date": originalPurchaseDate?.toIso8601String(),
-        "period_type": periodType,
-        "purchase_date": purchaseDate?.toIso8601String(),
-        "refunded_at": refundedAt,
-        "store": store,
-        "store_transaction_id": storeTransactionId,
-        "unsubscribe_detected_at": unsubscribeDetectedAt,
+        'identifier': identifier,
+        'auto_resume_date': autoResumeDate,
+        'billing_issues_detected_at': billingIssuesDetectedAt,
+        'expires_date': expiresDate?.toIso8601String(),
+        'grace_period_expires_date': gracePeriodExpiresDate,
+        'is_sandbox': isSandbox,
+        'original_purchase_date': originalPurchaseDate?.toIso8601String(),
+        'period_type': periodType,
+        'purchase_date': purchaseDate?.toIso8601String(),
+        'refunded_at': refundedAt,
+        'store': store,
+        'store_transaction_id': storeTransactionId,
+        'unsubscribe_detected_at': unsubscribeDetectedAt,
       };
 }

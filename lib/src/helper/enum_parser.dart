@@ -6,17 +6,17 @@ import 'package:purchases_flutter/models/store.dart';
 Store getStore(String? store) {
   if (store == null) return Store.unknownStore;
   switch (store.toLowerCase()) {
-    case "app_store":
+    case 'app_store':
       return Store.appStore;
-    case "mac_app_store":
+    case 'mac_app_store':
       return Store.macAppStore;
-    case "play_store":
+    case 'play_store':
       return Store.playStore;
-    case "stripe":
+    case 'stripe':
       return Store.stripe;
-    case "promotional":
+    case 'promotional':
       return Store.promotional;
-    case "amazon":
+    case 'amazon':
       return Store.amazon;
     default:
       return Store.unknownStore;
@@ -25,11 +25,11 @@ Store getStore(String? store) {
 
 PeriodType getPeriodType(String? name) {
   switch (name?.toLowerCase()) {
-    case "normal":
+    case 'normal':
       return PeriodType.normal;
-    case "intro":
+    case 'intro':
       return PeriodType.intro;
-    case "trial":
+    case 'trial':
       return PeriodType.trial;
     default:
       return PeriodType.normal;
@@ -38,9 +38,9 @@ PeriodType getPeriodType(String? name) {
 
 OwnershipType getOwnershipType(String name) {
   switch (jsonDecode(name)) {
-    case "PURCHASED":
+    case 'PURCHASED':
       return OwnershipType.purchased;
-    case "FAMILY_SHARED":
+    case 'FAMILY_SHARED':
       return OwnershipType.familyShared;
     default:
       return OwnershipType.unknown;

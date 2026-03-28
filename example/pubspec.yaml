@@ -9,15 +9,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  url_launcher: ^6.2.4
+  url_launcher: ^6.3.2
   purchases_flutter:
   purchases_dart:
     path: ../
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

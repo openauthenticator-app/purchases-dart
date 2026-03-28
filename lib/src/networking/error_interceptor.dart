@@ -1,192 +1,236 @@
-import 'package:dio/dio.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
-/// ErrorInterceptor for handling errors in Dio,
+import 'package:http/http.dart';
+import 'package:http_client_interceptor/http_client_interceptor.dart';
+import 'package:purchases_dart/src/networking/rc_http_status_code.dart';
+
+/// ErrorInterceptor for handling errors in http_client_interceptor,
 /// and converting them to custom exceptions.
-class ErrorInterceptor extends Interceptor {
+class ErrorInterceptor extends HttpInterceptor {
   ErrorInterceptor();
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    switch (err.type) {
-      case DioExceptionType.connectionTimeout:
-        return handler.reject(
-          ConnectionTimeOutException(err.requestOptions),
+  FutureOr<OnResponse> onResponse(StreamedResponse response) async {
+    if (RcHttpStatusCodes.isSuccessful(response.statusCode)) {
+      return OnResponse.next(response);
+    }
+
+    // For non-successful status codes, we consume the stream to read the body
+    // and provide it in the exception if available.
+    Response fullResponse = await Response.fromStream(response);
+    final responseData = fullResponse.data;
+
+    if (responseData != null) {
+      return OnResponse.reject(
+        PurchasesNetworkException(
+          request: fullResponse.request,
+          response: fullResponse,
+          message: responseData.toString(),
+        ),
+      );
+    }
+
+    switch (fullResponse.statusCode) {
+      case 400:
+        return OnResponse.reject(BadRequestException(fullResponse.request));
+      case 401:
+        return OnResponse.reject(UnauthorizedException(fullResponse.request));
+      case 404:
+        return OnResponse.reject(NotFoundException(fullResponse.request));
+      case 409:
+        return OnResponse.reject(ConflictException(fullResponse.request));
+      case 500:
+        return OnResponse.reject(
+          InternalServerErrorException(fullResponse.request),
         );
-      case DioExceptionType.sendTimeout:
-        return handler.reject(
-          SendTimeOutException(err.requestOptions),
-        );
-      case DioExceptionType.receiveTimeout:
-        return handler.reject(
-          ReceiveTimeOutException(err.requestOptions),
-        );
-      case DioExceptionType.connectionError:
-        return handler.reject(
-          NoInternetConnectionException(err.requestOptions),
-        );
-      case DioExceptionType.badCertificate:
-        return handler.reject(
-          CertificateVerificationFailed(err.requestOptions),
-        );
-      case DioExceptionType.badResponse:
-        var responseData = err.response?.data;
-        if (responseData != null) {
-          return handler.reject(
-            DioException(
-              requestOptions: err.requestOptions,
-              error: responseData.toString(),
-            ),
-          );
-        }
-        switch (err.response?.statusCode) {
-          case 400:
-            return handler.reject(
-              BadRequestException(err.requestOptions),
-            );
-          case 401:
-            return handler.reject(
-              UnauthorizedException(err.requestOptions),
-            );
-          case 404:
-            return handler.reject(
-              NotFoundException(err.requestOptions),
-            );
-          case 409:
-            return handler.reject(
-              ConflictException(err.requestOptions),
-            );
-          case 500:
-            return handler.reject(
-              InternalServerErrorException(err.requestOptions),
-            );
-        }
-        throw Exception(err.message);
-      case DioExceptionType.cancel:
-      case DioExceptionType.unknown:
-        return handler.reject(err);
+    }
+
+    return OnResponse.reject(
+      PurchasesNetworkException(
+        request: fullResponse.request,
+        response: fullResponse,
+        message: 'Unhandled status code: ${fullResponse.statusCode}',
+      ),
+    );
+  }
+
+  @override
+  FutureOr<OnError> onError(
+    BaseRequest request,
+    Object error,
+    StackTrace? stackTrace,
+  ) {
+    if (error is PurchasesNetworkException) {
+      return OnError.next(request, error, stackTrace);
+    }
+
+    if (error is SocketException) {
+      return OnError.reject(NoInternetConnectionException(request), stackTrace);
+    }
+
+    if (error is TimeoutException) {
+      return OnError.reject(ConnectionTimeOutException(request), stackTrace);
+    }
+
+    if (error is HandshakeException) {
+      return OnError.reject(CertificateVerificationFailed(request), stackTrace);
+    }
+
+    return OnError.next(request, error, stackTrace);
+  }
+}
+
+extension ResponseDataExtension on Response {
+  /// Returns the decoded JSON body of the response.
+  dynamic get data {
+    try {
+      return jsonDecode(body);
+    } catch (_) {
+      return null;
     }
   }
 }
 
 /// Custom Exceptions
 
-/// Exception thrown when there is no internet connection available.
-class NoInternetConnectionException extends DioException {
-  static String errorMessage =
-      'No internet connection detected, please try again';
+/// Base exception for Purchases network errors.
+class PurchasesNetworkException implements Exception {
+  final BaseRequest? request;
+  final Response? response;
+  final String? message;
 
-  /// Creates a [NoInternetConnectionException] with the given request options.
-  NoInternetConnectionException(RequestOptions r) : super(requestOptions: r);
+  PurchasesNetworkException({
+    this.request,
+    this.response,
+    this.message,
+  });
 
   @override
-  String toString() {
-    return errorMessage;
-  }
+  String toString() => message ?? 'PurchasesNetworkException';
+}
+
+/// Exception thrown when there is no internet connection available.
+class NoInternetConnectionException extends PurchasesNetworkException {
+  static String errorMessage = 'No internet connection detected, please try again';
+
+  NoInternetConnectionException(BaseRequest? request)
+      : super(
+          request: request,
+          message: errorMessage,
+        );
+
+  @override
+  String toString() => errorMessage;
 }
 
 /// Exception thrown when a connection timeout occurs.
-class ConnectionTimeOutException extends DioException {
-  /// Creates a [ConnectionTimeOutException] with the given request options.
-  ConnectionTimeOutException(RequestOptions r) : super(requestOptions: r);
+class ConnectionTimeOutException extends PurchasesNetworkException {
+  ConnectionTimeOutException(BaseRequest? request)
+      : super(
+          request: request,
+          message: 'Connection Timed out, Please try again',
+        );
 
   @override
-  String toString() {
-    return 'Connection Timed out, Please try again';
-  }
+  String toString() => 'Connection Timed out, Please try again';
 }
 
 /// Exception thrown when a send timeout occurs.
-class SendTimeOutException extends DioException {
-  /// Creates a [SendTimeOutException] with the given request options.
-  SendTimeOutException(RequestOptions r) : super(requestOptions: r);
+class SendTimeOutException extends PurchasesNetworkException {
+  SendTimeOutException(BaseRequest? request)
+      : super(
+          request: request,
+          message: 'Send Timed out, Please try again',
+        );
 
   @override
-  String toString() {
-    return 'Send Timed out, Please try again';
-  }
+  String toString() => 'Send Timed out, Please try again';
 }
 
 /// Exception thrown when a receive timeout occurs.
-class ReceiveTimeOutException extends DioException {
-  /// Creates a [ReceiveTimeOutException] with the given request options.
-  ReceiveTimeOutException(RequestOptions r) : super(requestOptions: r);
+class ReceiveTimeOutException extends PurchasesNetworkException {
+  ReceiveTimeOutException(BaseRequest? request)
+      : super(
+          request: request,
+          message: 'Receive Timed out, Please try again',
+        );
 
   @override
-  String toString() {
-    return 'Receive Timed out, Please try again';
-  }
+  String toString() => 'Receive Timed out, Please try again';
 }
 
 /// Exception thrown when a bad request (HTTP 400) is received from the server.
-///
-/// This typically indicates that the request was malformed or contained invalid parameters.
-class BadRequestException extends DioException {
-  /// Creates a [BadRequestException] with the given request options.
-  BadRequestException(RequestOptions r) : super(requestOptions: r);
+class BadRequestException extends PurchasesNetworkException {
+  BadRequestException(BaseRequest? request)
+      : super(
+          request: request,
+          message: 'Invalid request',
+        );
 
   @override
-  String toString() {
-    return 'Invalid request';
-  }
+  String toString() => 'Invalid request';
 }
 
 /// Exception thrown when an internal server error (HTTP 500) occurs.
-class InternalServerErrorException extends DioException {
-  /// Creates an [InternalServerErrorException] with the given request options.
-  InternalServerErrorException(RequestOptions r) : super(requestOptions: r);
+class InternalServerErrorException extends PurchasesNetworkException {
+  InternalServerErrorException(BaseRequest? request)
+      : super(
+          request: request,
+          message: 'Internal server error occurred, please try again later.',
+        );
 
   @override
-  String toString() {
-    return 'Internal server error occurred, please try again later.';
-  }
+  String toString() => 'Internal server error occurred, please try again later.';
 }
 
 /// Exception thrown when a conflict (HTTP 409) occurs.
-class ConflictException extends DioException {
-  /// Creates a [ConflictException] with the given request options.
-  ConflictException(RequestOptions r) : super(requestOptions: r);
+class ConflictException extends PurchasesNetworkException {
+  ConflictException(BaseRequest? request)
+      : super(
+          request: request,
+          message: 'Conflict occurred',
+        );
 
   @override
-  String toString() {
-    return 'Conflict occurred';
-  }
+  String toString() => 'Conflict occurred';
 }
 
 /// Exception thrown when an unauthorized request (HTTP 401) is made.
-class UnauthorizedException extends DioException {
-  /// Creates an [UnauthorizedException] with the given request options.
-  UnauthorizedException(RequestOptions r) : super(requestOptions: r);
+class UnauthorizedException extends PurchasesNetworkException {
+  UnauthorizedException(BaseRequest? request)
+      : super(
+          request: request,
+          message: 'Access denied',
+        );
 
   @override
-  String toString() {
-    return 'Access denied';
-  }
+  String toString() => 'Access denied';
 }
 
 /// Exception thrown when a resource is not found (HTTP 404).
-class NotFoundException extends DioException {
-  /// Creates a [NotFoundException] with the given request options.
-  NotFoundException(RequestOptions r) : super(requestOptions: r);
+class NotFoundException extends PurchasesNetworkException {
+  NotFoundException(BaseRequest? request)
+      : super(
+          request: request,
+          message: 'The requested information could not be found',
+        );
 
   @override
-  String toString() {
-    return 'The requested information could not be found';
-  }
+  String toString() => 'The requested information could not be found';
 }
 
 /// Exception thrown when SSL/TLS certificate verification fails.
-///
-/// This exception is raised when the server's certificate cannot be verified
-/// during the SSL handshake process.
-class CertificateVerificationFailed extends DioException {
-  static String errorMessage =
-      'Certificate verification failed, please try again later.';
+class CertificateVerificationFailed extends PurchasesNetworkException {
+  static String errorMessage = 'Certificate verification failed, please try again later.';
 
-  /// Creates a [CertificateVerificationFailed] exception with the given request options.
-  CertificateVerificationFailed(RequestOptions r) : super(requestOptions: r);
+  CertificateVerificationFailed(BaseRequest? request)
+      : super(
+          request: request,
+          message: errorMessage,
+        );
 
   @override
-  String toString() {
-    return errorMessage;
-  }
+  String toString() => errorMessage;
 }

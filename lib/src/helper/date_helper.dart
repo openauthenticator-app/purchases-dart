@@ -19,9 +19,7 @@ class DateHelper {
   }) {
     if (expirationDate == null) return DateActive(true, true);
 
-    bool inGracePeriod = DateTime.now().millisecondsSinceEpoch -
-            requestDate.millisecondsSinceEpoch <=
-        gracePeriod.inMilliseconds;
+    bool inGracePeriod = DateTime.now().millisecondsSinceEpoch - requestDate.millisecondsSinceEpoch <= gracePeriod.inMilliseconds;
     DateTime referenceDate = inGracePeriod ? requestDate : DateTime.now();
     return DateActive(
       expirationDate.isAfter(referenceDate),

@@ -1,9 +1,10 @@
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:uuid/uuid.dart';
+
+import '../networking/purchases_backend.dart';
 import 'cache_manager.dart';
 import 'logger.dart';
 import 'purchase_error_code.dart';
-import '../networking/purchases_backend.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:uuid/uuid.dart';
 
 class IdentityManager {
   final CacheManager deviceCache;
@@ -17,13 +18,10 @@ class IdentityManager {
 
   void configure(String? appUserId) {
     if (appUserId?.trim().isEmpty == true) {
-      Logger.logEvent(
-          'EMPTY_APP_USER_ID_WILL_BECOME_ANONYMOUS', LogLevel.debug);
+      Logger.logEvent('EMPTY_APP_USER_ID_WILL_BECOME_ANONYMOUS', LogLevel.debug);
     }
 
-    final appUserIdToUse = appUserId?.trim().isNotEmpty == true
-        ? appUserId
-        : deviceCache.getCachedAppUserId() ?? _generateRandomId();
+    final appUserIdToUse = appUserId?.trim().isNotEmpty == true ? appUserId : deviceCache.getCachedAppUserId() ?? _generateRandomId();
 
     Logger.logEvent('IDENTIFYING_APP_USER_ID $appUserIdToUse', LogLevel.debug);
 
@@ -72,8 +70,7 @@ class IdentityManager {
   }
 
   bool currentUserIsAnonymous() {
-    final currentAppUserIdLooksAnonymous =
-        _isUserIdAnonymous(deviceCache.getCachedAppUserId() ?? '');
+    final currentAppUserIdLooksAnonymous = _isUserIdAnonymous(deviceCache.getCachedAppUserId() ?? '');
     return currentAppUserIdLooksAnonymous;
   }
 

@@ -25,18 +25,16 @@ class RawProduct {
 
   factory RawProduct.fromJson(Map<String, dynamic> json) {
     return RawProduct(
-      currentPrice: json["current_price"] == null
-          ? null
-          : ProductPrice.fromJson(json["current_price"]),
-      defaultPurchaseOptionId: json["default_purchase_option_id"],
-      defaultSubscriptionOptionId: json["default_subscription_option_id"],
-      description: json["description"],
-      identifier: json["identifier"],
-      normalPeriodDuration: json["normal_period_duration"],
-      productType: json["product_type"],
-      purchaseOptions: _getPurchaseOptions(json["purchase_options"]),
-      subscriptionOptions: _getPurchaseOptions(json["subscription_options"]),
-      title: json["title"],
+      currentPrice: json['current_price'] == null ? null : ProductPrice.fromJson(json['current_price']),
+      defaultPurchaseOptionId: json['default_purchase_option_id'],
+      defaultSubscriptionOptionId: json['default_subscription_option_id'],
+      description: json['description'],
+      identifier: json['identifier'],
+      normalPeriodDuration: json['normal_period_duration'],
+      productType: json['product_type'],
+      purchaseOptions: _getPurchaseOptions(json['purchase_options']),
+      subscriptionOptions: _getPurchaseOptions(json['subscription_options']),
+      title: json['title'],
     );
   }
 
@@ -50,18 +48,16 @@ class RawProduct {
   }
 
   Map<String, dynamic> toJson() => {
-        "current_price": currentPrice?.toJson(),
-        "default_purchase_option_id": defaultPurchaseOptionId,
-        "default_subscription_option_id": defaultSubscriptionOptionId,
-        "description": description,
-        "identifier": identifier,
-        "normal_period_duration": normalPeriodDuration,
-        "product_type": productType,
-        "purchase_options":
-            purchaseOptions?.map((key, value) => MapEntry(key, value.toJson())),
-        "subscription_options": subscriptionOptions
-            ?.map((key, value) => MapEntry(key, value.toJson())),
-        "title": title,
+        'current_price': currentPrice?.toJson(),
+        'default_purchase_option_id': defaultPurchaseOptionId,
+        'default_subscription_option_id': defaultSubscriptionOptionId,
+        'description': description,
+        'identifier': identifier,
+        'normal_period_duration': normalPeriodDuration,
+        'product_type': productType,
+        'purchase_options': purchaseOptions?.map((key, value) => MapEntry(key, value.toJson())),
+        'subscription_options': subscriptionOptions?.map((key, value) => MapEntry(key, value.toJson())),
+        'title': title,
       };
 }
 
@@ -78,16 +74,16 @@ class ProductPrice {
 
   factory ProductPrice.fromJson(Map<String, dynamic> json) {
     return ProductPrice(
-      amount: json["amount"],
-      amountMicros: json["amount_micros"],
-      currency: json["currency"],
+      amount: json['amount'],
+      amountMicros: json['amount_micros'],
+      currency: json['currency'],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "amount": amount,
-        "amount_micros": amountMicros,
-        "currency": currency,
+        'amount': amount,
+        'amount_micros': amountMicros,
+        'currency': currency,
       };
 }
 
@@ -110,25 +106,21 @@ class ProductPurchaseOption {
 
   factory ProductPurchaseOption.fromJson(Map<String, dynamic> json) {
     return ProductPurchaseOption(
-      base: json["base"] == null
-          ? null
-          : PurchaseOptionBase.fromJson(json["base"]),
-      basePrice: json["base_price"] == null
-          ? null
-          : ProductPrice.fromJson(json["base_price"]),
-      id: json["id"],
-      introPrice: json["intro_price"],
-      priceId: json["price_id"],
-      trial: json["trial"],
+      base: json['base'] == null ? null : PurchaseOptionBase.fromJson(json['base']),
+      basePrice: json['base_price'] == null ? null : ProductPrice.fromJson(json['base_price']),
+      id: json['id'],
+      introPrice: json['intro_price'],
+      priceId: json['price_id'],
+      trial: json['trial'],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "base": base?.toJson(),
-        "id": id,
-        "intro_price": introPrice,
-        "price_id": priceId,
-        "trial": trial,
+        'base': base?.toJson(),
+        'id': id,
+        'intro_price': introPrice,
+        'price_id': priceId,
+        'trial': trial,
       };
 }
 
@@ -145,16 +137,15 @@ class PurchaseOptionBase {
 
   factory PurchaseOptionBase.fromJson(Map<String, dynamic> json) {
     return PurchaseOptionBase(
-      cycleCount: json["cycle_count"],
-      periodDuration: json["period_duration"],
-      price:
-          json["price"] == null ? null : ProductPrice.fromJson(json["price"]),
+      cycleCount: json['cycle_count'],
+      periodDuration: json['period_duration'],
+      price: json['price'] == null ? null : ProductPrice.fromJson(json['price']),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        "cycle_count": cycleCount,
-        "period_duration": periodDuration,
-        "price": price?.toJson(),
+        'cycle_count': cycleCount,
+        'period_duration': periodDuration,
+        'price': price?.toJson(),
       };
 }

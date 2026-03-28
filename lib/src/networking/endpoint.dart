@@ -1,35 +1,28 @@
 class Endpoint {
+  static const String _rcBaseUrl = 'https://api.revenuecat.com/v1';
   final String pathTemplate;
   final String name;
 
   Endpoint(this.pathTemplate, this.name);
 
-  String get path => pathTemplate;
+  Uri get path => Uri.parse(_rcBaseUrl + pathTemplate);
 
-  bool supportsSignatureVerification() =>
-      this is GetCustomerInfo ||
-      this is LogIn ||
-      this is PostReceipt ||
-      this is GetOfferings ||
-      this is GetProductEntitlementMapping;
+  bool supportsSignatureVerification() => this is GetCustomerInfo || this is LogIn || this is PostReceipt || this is GetOfferings || this is GetProductEntitlementMapping;
 
-  bool needsNonceToPerformSigning() =>
-      this is GetCustomerInfo || this is LogIn || this is PostReceipt;
+  bool needsNonceToPerformSigning() => this is GetCustomerInfo || this is LogIn || this is PostReceipt;
 }
 
 class GetCustomerInfo extends Endpoint {
   final String userId;
-  GetCustomerInfo(this.userId)
-      : super("/subscribers/${Uri.encodeComponent(userId)}", "get_customer");
+  GetCustomerInfo(this.userId) : super('/subscribers/${Uri.encodeComponent(userId)}', 'get_customer');
 }
 
 class PostReceipt extends Endpoint {
-  PostReceipt() : super("/receipts", "post_receipt");
+  PostReceipt() : super('/receipts', 'post_receipt');
 }
 
 class PostRedeemWebPurchase extends Endpoint {
-  PostRedeemWebPurchase()
-      : super("/subscribers/redeem_purchase", "post_redeem_web_purchase");
+  PostRedeemWebPurchase() : super('/subscribers/redeem_purchase', 'post_redeem_web_purchase');
 }
 
 class GetOfferings extends Endpoint {
@@ -37,8 +30,8 @@ class GetOfferings extends Endpoint {
 
   GetOfferings(this.userId)
       : super(
-          "/subscribers/${Uri.encodeComponent(userId)}/offerings",
-          "get_offerings",
+          '/subscribers/${Uri.encodeComponent(userId)}/offerings',
+          'get_offerings',
         );
 }
 
@@ -48,20 +41,20 @@ class GetProducts extends Endpoint {
   GetProducts(String baseUrl, this.userId, this.platformProductIdentifiers)
       : super(
           "$baseUrl/subscribers/${Uri.encodeComponent(userId)}/products?${platformProductIdentifiers.map((e) => "id=${Uri.encodeComponent(e)}").join("&")}",
-          "get_products",
+          'get_products',
         );
 }
 
 class LogIn extends Endpoint {
-  LogIn() : super("/subscribers/identify", "log_in");
+  LogIn() : super('/subscribers/identify', 'log_in');
 }
 
 class PostDiagnostics extends Endpoint {
-  PostDiagnostics() : super("/diagnostics", "post_diagnostics");
+  PostDiagnostics() : super('/diagnostics', 'post_diagnostics');
 }
 
 class PostPaywallEvents extends Endpoint {
-  PostPaywallEvents() : super("/events", "post_paywall_events");
+  PostPaywallEvents() : super('/events', 'post_paywall_events');
 }
 
 class PostAttributes extends Endpoint {
@@ -69,8 +62,8 @@ class PostAttributes extends Endpoint {
 
   PostAttributes(this.userId)
       : super(
-          "/subscribers/${Uri.encodeComponent(userId)}/attributes",
-          "post_attributes",
+          '/subscribers/${Uri.encodeComponent(userId)}/attributes',
+          'post_attributes',
         );
 }
 
@@ -80,15 +73,15 @@ class GetAmazonReceipt extends Endpoint {
 
   GetAmazonReceipt(this.userId, this.receiptId)
       : super(
-          "/receipts/amazon/$userId/$receiptId",
-          "get_amazon_receipt",
+          '/receipts/amazon/$userId/$receiptId',
+          'get_amazon_receipt',
         );
 }
 
 class GetProductEntitlementMapping extends Endpoint {
   GetProductEntitlementMapping()
       : super(
-          "/product_entitlement_mapping",
-          "get_product_entitlement_mapping",
+          '/product_entitlement_mapping',
+          'get_product_entitlement_mapping',
         );
 }

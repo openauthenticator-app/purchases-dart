@@ -3,8 +3,7 @@ class CustomerInfoResponseJsonKeys {
   static const String requestDateMs = 'request_date_ms';
   static const String subscriber = 'subscriber';
   static const String originalAppUserId = 'original_app_user_id';
-  static const String originalApplicationVersion =
-      'original_application_version';
+  static const String originalApplicationVersion = 'original_application_version';
   static const String entitlements = 'entitlements';
   static const String firstScreen = 'first_seen';
   static const String originalPurchaseDate = 'original_purchase_date';

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:crypto/crypto.dart';
+
+import 'package:hashlib/hashlib.dart';
+
 import 'endpoint.dart';
 
 // TODO: implement this for secure communication
@@ -29,9 +31,7 @@ class SigningManager {
     Endpoint endpoint,
     List<MapEntry<String, String>>? postFieldsToSign,
   ) {
-    if (postFieldsToSign != null &&
-        postFieldsToSign.isNotEmpty &&
-        shouldVerifyEndpoint(endpoint)) {
+    if (postFieldsToSign != null && postFieldsToSign.isNotEmpty && shouldVerifyEndpoint(endpoint)) {
       var bytes = <int>[];
       postFieldsToSign.asMap().forEach((index, pair) {
         if (index > 0) {
@@ -40,9 +40,7 @@ class SigningManager {
         bytes.addAll(pair.value.codeUnits);
       });
       var digest = sha256.convert(bytes);
-      var hashFields = digest.bytes
-          .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
-          .join();
+      var hashFields = digest.bytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
       return '${postFieldsToSign.map((pair) => pair.key).join(',')}:$_postParamsAlgo:$hashFields';
     } else {
       return null;

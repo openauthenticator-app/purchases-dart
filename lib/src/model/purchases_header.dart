@@ -1,5 +1,3 @@
-import 'package:dio/dio.dart';
-
 /// Header configuration for Purchases API requests.
 ///
 /// Use this class to override default headers when making requests to the RevenueCat API.
@@ -14,7 +12,7 @@ class PurchasesHeader {
   String? apiKey;
 
   /// Additional custom headers to include in the request.
-  Map<String, dynamic>? extra;
+  Map<String, String>? extra;
 
   /// Creates a [PurchasesHeader] with optional platform, API key, and extra headers.
   ///
@@ -28,13 +26,14 @@ class PurchasesHeader {
   });
 
   /// Converts this header configuration to Dio [Options] for use in HTTP requests.
-  Options? get dioOptions {
-    Map<String, dynamic> headers = {
-      if (platform != null) 'X-Platform': platform,
+  Map<String, String>? get map {
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'X-Platform': 'web-billing',
+      if (platform != null) 'X-Platform': platform!,
       if (apiKey != null) 'Authorization': 'Bearer $apiKey',
+      if (extra != null) ...extra!,
     };
-    if (extra != null) headers.addAll(extra!);
-    if (headers.isEmpty) return null;
-    return Options(headers: headers);
+    return headers.isEmpty ? null : headers;
   }
 }

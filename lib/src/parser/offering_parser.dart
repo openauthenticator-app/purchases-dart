@@ -1,8 +1,9 @@
+import 'package:purchases_flutter/purchases_flutter.dart';
+
 import '../helper/currency_formatter.dart';
 import '../helper/extensions.dart';
 import '../model/raw_offerings.dart';
 import '../model/raw_product.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 
 /// Parses a [RawOffering] into a [Offerings] object.
 class OfferingParser {
@@ -46,7 +47,7 @@ class OfferingParser {
     }
     return Offering(
       offeringIdentifier,
-      rawOffering.description ?? "No description",
+      rawOffering.description ?? 'No description',
       rawOffering.metadata,
       packages,
       lifetime: packages.ofType(PackageType.lifetime),
@@ -72,33 +73,25 @@ class OfferingParser {
       (element) => element.identifier == platformProductId,
     );
     if (rawProduct == null) return null;
-    final offeringContext =
-        PresentedOfferingContext(offeringIdentifier, null, null);
+    final offeringContext = PresentedOfferingContext(offeringIdentifier, null, null);
 
-    ProductCategory productCategory = rawProduct.productType == "subscription"
-        ? ProductCategory.subscription
-        : ProductCategory.nonSubscription;
+    ProductCategory productCategory = rawProduct.productType == 'subscription' ? ProductCategory.subscription : ProductCategory.nonSubscription;
 
     ProductPurchaseOption? productPurchaseOption;
 
     if (productCategory == ProductCategory.subscription) {
-      String? defaultSubscriptionOptionId =
-          rawProduct.defaultSubscriptionOptionId;
+      String? defaultSubscriptionOptionId = rawProduct.defaultSubscriptionOptionId;
       if (defaultSubscriptionOptionId != null) {
-        productPurchaseOption =
-            rawProduct.subscriptionOptions?[defaultSubscriptionOptionId];
+        productPurchaseOption = rawProduct.subscriptionOptions?[defaultSubscriptionOptionId];
       }
     } else {
       String? defaultPurchaseOptionId = rawProduct.defaultPurchaseOptionId;
       if (defaultPurchaseOptionId != null) {
-        productPurchaseOption =
-            rawProduct.purchaseOptions?[defaultPurchaseOptionId];
+        productPurchaseOption = rawProduct.purchaseOptions?[defaultPurchaseOptionId];
       }
     }
 
-    ProductPrice? productPrice = rawProduct.currentPrice ??
-        productPurchaseOption?.basePrice ??
-        productPurchaseOption?.base?.price;
+    ProductPrice? productPrice = rawProduct.currentPrice ?? productPurchaseOption?.basePrice ?? productPurchaseOption?.base?.price;
 
     if (productPrice == null) return null;
 
@@ -116,10 +109,10 @@ class OfferingParser {
       rawPackage.packageType,
       StoreProduct(
         platformProductId,
-        rawProduct.description ?? "",
-        rawProduct.title ?? "",
+        rawProduct.description ?? '',
+        rawProduct.title ?? '',
         price,
-        priceString ?? "",
+        priceString ?? '',
         currency,
         presentedOfferingContext: offeringContext,
         productCategory: productCategory,

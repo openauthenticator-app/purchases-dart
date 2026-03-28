@@ -34,11 +34,11 @@ class _MainAppState extends State<MainApp> {
     // configure PurchasesDart
     await PurchasesDart.configure(
       PurchasesDartConfiguration(
-        webBillingApiKey: , // Fill with your web billing api key
+        webBillingApiKey: 'TODO', // Fill with your web billing api key
       ),
     );
 
-    _userIdController.text = PurchasesDart.appUserId ?? "";
+    _userIdController.text = PurchasesDart.appUserId ?? '';
   }
 
   // TestStripeCard: 4242 4242 4242 4242
@@ -89,7 +89,7 @@ class _MainAppState extends State<MainApp> {
       if (webBillingUrl != null) {
         await launchUrl(webBillingUrl);
       } else {
-        throw Exception("Failed to get web billing url");
+        throw Exception('Failed to get web billing url');
       }
       setState(() => isLoading = false);
     } catch (e) {
@@ -117,7 +117,7 @@ class _MainAppState extends State<MainApp> {
   Future<void> logoutUser() async {
     try {
       await PurchasesDart.logout();
-      _userIdController.text = PurchasesDart.appUserId ?? "";
+      _userIdController.text = PurchasesDart.appUserId ?? '';
       _getCustomerInfo();
     } catch (e) {
       print(e);
@@ -138,7 +138,7 @@ class _MainAppState extends State<MainApp> {
               child: TextFormField(
                 controller: _userIdController,
                 decoration: const InputDecoration(
-                  labelText: "User Id",
+                  labelText: 'User Id',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -150,11 +150,11 @@ class _MainAppState extends State<MainApp> {
                 children: [
                   ElevatedButton(
                     onPressed: loginUser,
-                    child: const Text("Login"),
+                    child: const Text('Login'),
                   ),
                   ElevatedButton(
                     onPressed: logoutUser,
-                    child: const Text("Logout"),
+                    child: const Text('Logout'),
                   ),
                 ],
               ),
@@ -166,11 +166,11 @@ class _MainAppState extends State<MainApp> {
                 children: [
                   ElevatedButton(
                     onPressed: _getCustomerInfo,
-                    child: const Text("Get CustomerInfo"),
+                    child: const Text('Get CustomerInfo'),
                   ),
                   ElevatedButton(
                     onPressed: _getOfferings,
-                    child: const Text("Get Offerings"),
+                    child: const Text('Get Offerings'),
                   ),
                 ],
               ),
@@ -181,8 +181,7 @@ class _MainAppState extends State<MainApp> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    if (customerInfo != null)
-                      CustomerInfoWidget(customerInfo: customerInfo!),
+                    if (customerInfo != null) CustomerInfoWidget(customerInfo: customerInfo!),
                     const Divider(),
                     if (offerings != null)
                       OfferingsWidget(
@@ -201,6 +200,7 @@ class _MainAppState extends State<MainApp> {
 class OfferingsWidget extends StatelessWidget {
   final Offerings offerings;
   final Function(Package) onPackageTap;
+
   const OfferingsWidget({
     super.key,
     required this.offerings,
@@ -213,7 +213,7 @@ class OfferingsWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
-          title: Text("Current Offering ( ${offerings.current?.identifier} )"),
+          title: Text('Current Offering ( ${offerings.current?.identifier} )'),
           subtitle: Text(
             'Available Offerings ${offerings.all.entries.length}',
           ),
@@ -228,7 +228,7 @@ class OfferingsWidget extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      "Name: ${offering.identifier} | Packages ${offering.availablePackages.length}",
+                      'Name: ${offering.identifier} | Packages ${offering.availablePackages.length}',
                     ),
                     const Divider(),
                     ...offering.availablePackages.map((package) {
@@ -236,8 +236,8 @@ class OfferingsWidget extends StatelessWidget {
                         onTap: () => onPackageTap(package),
                         title: Text(package.storeProduct.title),
                         subtitle: Text(
-                          "${package.presentedOfferingContext.offeringIdentifier}\n"
-                          "${package.storeProduct.priceString}",
+                          '${package.presentedOfferingContext.offeringIdentifier}\n'
+                          '${package.storeProduct.priceString}',
                         ),
                       );
                     }).toList(),
@@ -254,6 +254,7 @@ class OfferingsWidget extends StatelessWidget {
 
 class CustomerInfoWidget extends StatelessWidget {
   final CustomerInfo customerInfo;
+
   const CustomerInfoWidget({super.key, required this.customerInfo});
 
   @override
@@ -264,7 +265,7 @@ class CustomerInfoWidget extends StatelessWidget {
         child: Column(
           children: [
             ListTile(
-              title: const Text("Customer Info"),
+              title: const Text('Customer Info'),
               subtitle: Text(
                 'OriginalAppUserID: ${customerInfo.originalAppUserId}'
                 '\nFirstSeen: ${customerInfo.firstSeen}',
@@ -272,13 +273,12 @@ class CustomerInfoWidget extends StatelessWidget {
             ),
             const Divider(),
             Text(
-              "Entitlements: Active - ${customerInfo.entitlements.active.entries.length} | All - ${customerInfo.entitlements.all.entries.length}",
+              'Entitlements: Active - ${customerInfo.entitlements.active.entries.length} | All - ${customerInfo.entitlements.all.entries.length}',
             ),
             ...customerInfo.entitlements.all.entries.map((e) {
               EntitlementInfo entitlementInfo = e.value;
               return ListTile(
-                tileColor:
-                    entitlementInfo.isActive ? Colors.green : Colors.grey,
+                tileColor: entitlementInfo.isActive ? Colors.green : Colors.grey,
                 title: Text('Identifier: ${entitlementInfo.identifier}'),
                 subtitle: Text(
                   'PurchaseDate: ${entitlementInfo.originalPurchaseDate}',
