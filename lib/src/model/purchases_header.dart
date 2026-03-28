@@ -20,7 +20,7 @@ class PurchasesHeader {
   /// [apiKey] An optional API key to override the default.
   /// [extra] Additional custom headers to include.
   PurchasesHeader({
-    this.platform,
+    this.platform = 'web-billing',
     this.apiKey,
     this.extra,
   });
@@ -29,7 +29,6 @@ class PurchasesHeader {
   Map<String, String>? get map {
     Map<String, String> headers = {
       'Content-Type': 'application/json',
-      'X-Platform': 'web-billing',
       if (platform != null) 'X-Platform': platform!,
       if (apiKey != null) 'Authorization': 'Bearer $apiKey',
       if (extra != null) ...extra!,

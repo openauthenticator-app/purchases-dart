@@ -18,29 +18,30 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 /// This class handles all network requests to the RevenueCat API,
 /// including customer info retrieval, offerings, and web checkout URL generation.
 class PurchasesBackend {
-  late http.Client _httpClient;
-  OfferingParser? _offeringParser;
-  CustomerParser? _customerParser;
-
-  final String _rcBillingBaseUrl = 'https://api.revenuecat.com/rcbilling/v1';
-  late final bool isSandbox;
+  final bool isSandbox;
+  final PurchasesHeader _defaultHeaders;
+  final http.Client _httpClient;
+  final OfferingParser? _offeringParser;
+  final CustomerParser? _customerParser;
 
   /// Creates a [PurchasesBackend] instance with the given API key.
   ///
   /// [apiKey] The RevenueCat Web Billing API key used for authentication.
   PurchasesBackend({
     required String apiKey,
-  }) {
-    isSandbox = isWebBillingSandboxApiKey(apiKey);
-    _httpClient = HttpClientProxy(
-      innerClient: http.Client(),
-      interceptors: [
-        ErrorInterceptor(),
-      ],
-    );
-    _offeringParser = OfferingParser();
-    _customerParser = CustomerParser();
-  }
+  })  : isSandbox = isWebBillingSandboxApiKey(apiKey),
+        _defaultHeaders = PurchasesHeader(
+          platform: 'web-billing',
+          apiKey: apiKey,
+        ),
+        _httpClient = HttpClientProxy(
+          innerClient: http.Client(),
+          interceptors: [
+            ErrorInterceptor(),
+          ],
+        ),
+        _offeringParser = OfferingParser(),
+        _customerParser = CustomerParser();
 
   Future<CustomerInfo?> getCustomerInfo(
     String userId, {
@@ -48,7 +49,7 @@ class PurchasesBackend {
   }) async {
     final response = await _httpClient.get(
       GetCustomerInfo(userId).path,
-      headers: headers?.map,
+      headers: (headers ?? _defaultHeaders).map,
     );
     return _customerParser?.createCustomer(RawCustomer.fromJson(response.data));
   }
@@ -58,7 +59,10 @@ class PurchasesBackend {
     PurchasesHeader? headers,
     String? currency,
   }) async {
-    final rawOfferings = await getRawOfferings(userId, headers: headers);
+    final rawOfferings = await getRawOfferings(
+      userId,
+      headers: headers,
+    );
     final rawProducts = await getRawProducts(
       userId,
       rawOfferings: rawOfferings,
@@ -106,7 +110,7 @@ class PurchasesBackend {
   }) async {
     final response = await _httpClient.get(
       GetOfferings(userId).path,
-      headers: headers?.map,
+      headers: (headers ?? _defaultHeaders).map,
     );
     return RawOfferings.fromJson(jsonDecode(response.body));
   }
@@ -127,17 +131,21 @@ class PurchasesBackend {
         }
       }
     }
-    final response = await _httpClient.get(
-      GetProducts(
-        _rcBillingBaseUrl,
-        userId,
-        platformProductIdentifiers.toList(),
-      ).path.replace(
+    Uri uri = GetProducts(
+      userId,
+      platformProductIdentifiers.toList(),
+    ).path;
+    if (currency != null) {
+      uri = uri.replace(
         queryParameters: {
-          if (currency != null) 'currency': currency,
+          ...uri.queryParameters,
+          'currency': currency,
         },
-      ),
-      headers: headers?.map,
+      );
+    }
+    final response = await _httpClient.get(
+      uri,
+      headers: (headers ?? _defaultHeaders).map,
     );
 
     var productDetails = response.data['product_details'];
@@ -153,13 +161,15 @@ class PurchasesBackend {
   Future<LogInResult> logIn({
     required String? oldAppUserId,
     required String newAppUserId,
+    PurchasesHeader? headers,
   }) async {
     http.Response response = await _httpClient.post(
       LogIn().path,
-      body: {
+      headers: (headers ?? _defaultHeaders).map,
+      body: jsonEncode({
         'app_user_id': oldAppUserId,
         'new_app_user_id': newAppUserId,
-      },
+      }),
     );
     if (response.data == null) {
       throw const PurchasesDartError(
@@ -195,8 +205,10 @@ class PurchasesBackend {
 
     await _httpClient.post(
       PostAttributes(userId).path,
-      headers: headers?.map,
-      body: {'attributes': backendMap},
+      headers: (headers ?? _defaultHeaders).map,
+      body: jsonEncode({
+        'attributes': backendMap,
+      }),
     );
   }
 }

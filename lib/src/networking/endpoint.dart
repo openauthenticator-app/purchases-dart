@@ -1,11 +1,17 @@
 class Endpoint {
   static const String _rcBaseUrl = 'https://api.revenuecat.com/v1';
+  static const String _rcBillingBaseUrl = 'https://api.revenuecat.com/rcbilling/v1';
+  final String baseUrl;
   final String pathTemplate;
   final String name;
 
-  Endpoint(this.pathTemplate, this.name);
+  Endpoint(
+    this.pathTemplate,
+    this.name, {
+    String? baseUrl,
+  }) : baseUrl = baseUrl ?? _rcBaseUrl;
 
-  Uri get path => Uri.parse(_rcBaseUrl + pathTemplate);
+  Uri get path => Uri.parse(baseUrl + pathTemplate);
 
   bool supportsSignatureVerification() => this is GetCustomerInfo || this is LogIn || this is PostReceipt || this is GetOfferings || this is GetProductEntitlementMapping;
 
@@ -14,6 +20,7 @@ class Endpoint {
 
 class GetCustomerInfo extends Endpoint {
   final String userId;
+
   GetCustomerInfo(this.userId) : super('/subscribers/${Uri.encodeComponent(userId)}', 'get_customer');
 }
 
@@ -38,10 +45,12 @@ class GetOfferings extends Endpoint {
 class GetProducts extends Endpoint {
   final String userId;
   final List<String> platformProductIdentifiers;
-  GetProducts(String baseUrl, this.userId, this.platformProductIdentifiers)
+
+  GetProducts(this.userId, this.platformProductIdentifiers)
       : super(
-          "$baseUrl/subscribers/${Uri.encodeComponent(userId)}/products?${platformProductIdentifiers.map((e) => "id=${Uri.encodeComponent(e)}").join("&")}",
+          "/subscribers/${Uri.encodeComponent(userId)}/products?${platformProductIdentifiers.map((e) => "id=${Uri.encodeComponent(e)}").join("&")}",
           'get_products',
+          baseUrl: Endpoint._rcBillingBaseUrl,
         );
 }
 

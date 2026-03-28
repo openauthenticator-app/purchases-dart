@@ -9,8 +9,6 @@ import 'package:purchases_dart/src/networking/rc_http_status_code.dart';
 /// ErrorInterceptor for handling errors in http_client_interceptor,
 /// and converting them to custom exceptions.
 class ErrorInterceptor extends HttpInterceptor {
-  ErrorInterceptor();
-
   @override
   FutureOr<OnResponse> onResponse(StreamedResponse response) async {
     if (RcHttpStatusCodes.isSuccessful(response.statusCode)) {
