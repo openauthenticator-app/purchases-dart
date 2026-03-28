@@ -11,13 +11,9 @@ class SharedPreferencesCacheManager with CacheManager {
 
   SharedPreferencesCacheManager._(this._storage);
 
-  static CacheManager? _instance;
-
-  static Future<CacheManager> get instance async {
-    if (_instance != null) return _instance!;
+  static Future<CacheManager> create() async {
     final storage = await SharedPreferences.getInstance();
-    _instance = SharedPreferencesCacheManager._(storage);
-    return _instance!;
+    return SharedPreferencesCacheManager._(storage);
   }
 
   final _appUserIdKey = 'appUserID';

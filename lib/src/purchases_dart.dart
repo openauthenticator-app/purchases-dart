@@ -31,7 +31,7 @@ class PurchasesDart {
     CacheManager? cacheManager,
   }) async {
     if (_backend != null) throw Exception('PurchasesDart already configured');
-    _cacheManager = cacheManager ?? SharedPreferencesCacheManager.instance as CacheManager;
+    _cacheManager = cacheManager ?? (await SharedPreferencesCacheManager.create());
     _backend = PurchasesBackend(
       apiKey: configuration.webBillingApiKey,
     );
