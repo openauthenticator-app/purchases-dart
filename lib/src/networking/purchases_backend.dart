@@ -196,7 +196,7 @@ class PurchasesBackend {
     await _httpClient.post(
       PostAttributes(userId).path,
       headers: headers?.map,
-      body: backendMap,
+      body: {'attributes': backendMap},
     );
   }
 }
