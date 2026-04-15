@@ -240,7 +240,7 @@ class OfferingsWidget extends StatelessWidget {
                           '${package.storeProduct.priceString}',
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),
@@ -284,7 +284,7 @@ class CustomerInfoWidget extends StatelessWidget {
                   'PurchaseDate: ${entitlementInfo.originalPurchaseDate}',
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
